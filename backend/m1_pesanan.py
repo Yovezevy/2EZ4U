@@ -1,7 +1,3 @@
-# ============================================================
-# M1 – Pesanan: Array Dinamis & Linked List
-# Struktur data dasar untuk menyimpan daftar pesanan 2EZ4U
-# ============================================================
 
 
 class Pesanan:
@@ -25,10 +21,6 @@ class Pesanan:
         return (f"Pesanan({self.oid}, {self.pelanggan}, {self.resto}, "
                 f"{self.menu}, {self.harga}, P{self.prioritas}, {self.status})")
 
-
-# ============================================================
-# CSV Reader  (tanpa modul csv bawaan)
-# ============================================================
 
 def _parse_csv_line(line):
     """Parse satu baris CSV, menangani field yang dikutip (quoted)."""
@@ -76,10 +68,6 @@ def load_pesanan(filepath):
     return hasil
 
 
-# ============================================================
-# Array Dinamis  (tanpa built-in list.append / list.insert)
-# ============================================================
-
 class Array:
     """Array dinamis yang tumbuh otomatis (doubling strategy)."""
 
@@ -88,7 +76,6 @@ class Array:
         self.size = 0
         self.data = [None] * self.capacity
 
-    # -- internal --
     def _resize(self, new_capacity):
         new_data = [None] * new_capacity
         for i in range(self.size):
@@ -96,7 +83,6 @@ class Array:
         self.data = new_data
         self.capacity = new_capacity
 
-    # -- primitif --
     def append(self, v):
         """Sisip di akhir – O(1) amortized."""
         if self.size == self.capacity:
@@ -167,9 +153,6 @@ class Array:
         return self.get(i)
 
 
-# ============================================================
-# Linked List  (Singly Linked List)
-# ============================================================
 
 class Node:
     __slots__ = ("data", "next")
@@ -257,7 +240,7 @@ class LinkList:
             yield current.data
             current = current.next
 
-    # -- metode bisnis pesanan --
+    
     def tambah_reguler(self, v):
         """Pesanan biasa → masuk di ujung belakang – O(1)."""
         self.append(v)
