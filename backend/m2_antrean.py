@@ -1,9 +1,3 @@
-# ============================================================
-# M2 – Antrean Melingkar (Circular Queue) & Undo (Stack)
-# Struktur data untuk memproses pesanan secara FIFO
-# dan membatalkan aksi terakhir (undo) secara LIFO
-# ============================================================
-
 
 class CircularQueue:
     """Antrean melingkar berbasis array tetap (FIFO).
@@ -60,11 +54,6 @@ class CircularQueue:
             yield self.data[idx]
             idx = (idx + 1) % self.capacity
 
-
-# ============================================================
-# Stack  (LIFO) – untuk fitur Undo
-# ============================================================
-
 class Stack:
     """Tumpukan (stack) berbasis array dinamis.
 
@@ -117,11 +106,6 @@ class Stack:
     def __iter__(self):
         for i in range(self.size - 1, -1, -1):
             yield self.data[i]
-
-
-# ============================================================
-# UndoManager – mengelola riwayat aksi
-# ============================================================
 
 class UndoManager:
     """Mencatat setiap aksi ke dalam Stack sehingga bisa di-undo.
