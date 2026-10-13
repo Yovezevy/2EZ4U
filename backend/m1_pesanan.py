@@ -1,7 +1,8 @@
-
+# m1_pesanan.py
+# modul buat nyimpen data pesanan pake Array sama LinkedList
+# ga boleh pake dict, set, list.insert, dll (sesuai aturan tugas)
 
 class Pesanan:
-    """Representasi satu baris pesanan (pengganti dict/namedtuple)."""
     __slots__ = ("oid", "pelanggan", "resto", "menu",
                  "harga", "prioritas", "t_masuk", "t_selesai", "status")
 
@@ -22,8 +23,9 @@ class Pesanan:
                 f"{self.menu}, {self.harga}, P{self.prioritas}, {self.status})")
 
 
+# --- parser csv manual (ga pake import csv) ---
+
 def _parse_csv_line(line):
-    """Parse satu baris CSV, menangani field yang dikutip (quoted)."""
     fields = []
     current = []
     in_quotes = False
@@ -43,10 +45,9 @@ def _parse_csv_line(line):
 
 
 def load_pesanan(filepath):
-    """Membaca pesanan.csv dan mengembalikan list Python biasa berisi objek Pesanan."""
     hasil = []
     with open(filepath, 'r', encoding='utf-8') as f:
-        header = f.readline()  # skip header
+        f.readline()  # skip header
         for line in f:
             line = line.strip()
             if not line:
@@ -54,44 +55,38 @@ def load_pesanan(filepath):
             fields = _parse_csv_line(line)
             if len(fields) >= 9:
                 p = Pesanan(
-                    oid=fields[0],
-                    pelanggan=fields[1],
-                    resto=fields[2],
-                    menu=fields[3],
-                    harga=fields[4],
-                    prioritas=fields[5],
-                    t_masuk=fields[6],
-                    t_selesai=fields[7],
-                    status=fields[8],
+                    fields[0], fields[1], fields[2], fields[3],
+                    fields[4], fields[5], fields[6], fields[7], fields[8]
                 )
                 hasil.append(p)
     return hasil
 
 
-class Array:
-    """Array dinamis yang tumbuh otomatis (doubling strategy)."""
+# === Array Dinamis ===
+# pake strategi doubling kalo udah penuh
 
+class Array:
     def __init__(self, capacity=4):
         self.capacity = capacity
         self.size = 0
         self.data = [None] * self.capacity
 
-    def _resize(self, new_capacity):
-        new_data = [None] * new_capacity
+    def _resize(self, new_cap):
+        new_data = [None] * new_cap
         for i in range(self.size):
             new_data[i] = self.data[i]
         self.data = new_data
-        self.capacity = new_capacity
+        self.capacity = new_cap
 
     def append(self, v):
-        """Sisip di akhir – O(1) amortized."""
+        # O(1) amortized
         if self.size == self.capacity:
             self._resize(self.capacity * 2)
         self.data[self.size] = v
         self.size += 1
 
     def insert(self, i, v):
-        """Sisip pada indeks i – O(n) geser."""
+        # O(n) karena harus geser elemen ke kanan
         if i < 0 or i > self.size:
             raise IndexError("Index out of bounds")
         if self.size == self.capacity:
@@ -102,19 +97,18 @@ class Array:
         self.size += 1
 
     def get(self, i):
-        """Akses indeks i – O(1)."""
+        # O(1) akses langsung
         if i < 0 or i >= self.size:
             raise IndexError("Index out of bounds")
         return self.data[i]
 
     def set(self, i, v):
-        """Ubah nilai pada indeks i – O(1)."""
         if i < 0 or i >= self.size:
             raise IndexError("Index out of bounds")
         self.data[i] = v
 
     def remove(self, i):
-        """Hapus elemen pada indeks i – O(n) geser."""
+        # O(n) karena harus geser elemen ke kiri
         if i < 0 or i >= self.size:
             raise IndexError("Index out of bounds")
         removed = self.data[i]
@@ -124,6 +118,11 @@ class Array:
         self.size -= 1
         return removed
 
+    def swap(self, i, j):
+        tmp = self.data[i]
+        self.data[i] = self.data[j]
+        self.data[j] = tmp
+
     def __len__(self):
         return self.size
 
@@ -131,88 +130,83 @@ class Array:
         for i in range(self.size):
             yield self.data[i]
 
-    # -- metode bisnis pesanan --
+    # method khusus pesanan
     def tambah_reguler(self, v):
-        """Pesanan biasa → masuk di ujung belakang – O(1) amortized."""
+        # masuk belakang, O(1) amortized
         self.append(v)
 
     def tambah_prioritas(self, v):
-        """Pesanan prioritas → masuk di tengah antrean – O(n)."""
+        # masuk tengah, O(n) geser
         self.insert(self.size // 2, v)
 
     def tambah_vip(self, v):
-        """Pesanan VIP → masuk di urutan pertama – O(n)."""
+        # masuk paling depan, O(n) geser semua
         self.insert(0, v)
 
     def hapus_pesanan(self, i):
-        """Hapus pesanan pada indeks ke-i – O(n)."""
         return self.remove(i)
 
     def lihat_pesanan(self, i):
-        """Lihat pesanan pada indeks ke-i – O(1)."""
         return self.get(i)
 
 
+# === Linked List ===
 
 class Node:
     __slots__ = ("data", "next")
-
     def __init__(self, data):
         self.data = data
         self.next = None
 
 
 class LinkList:
-    """Singly linked list dengan pointer head & tail."""
-
     def __init__(self):
         self.head = None
         self.tail = None
         self.size = 0
 
-    # -- primitif --
     def append(self, v):
-        """Sisip di akhir – O(1)."""
-        new_node = Node(v)
+        # O(1) karena ada pointer tail
+        nn = Node(v)
         if self.head is None:
-            self.head = new_node
-            self.tail = new_node
+            self.head = nn
+            self.tail = nn
         else:
-            self.tail.next = new_node
-            self.tail = new_node
+            self.tail.next = nn
+            self.tail = nn
         self.size += 1
 
     def insert(self, i, v):
-        """Sisip pada indeks i – O(n) telusur + O(1) sisip."""
+        # O(n) telusur + O(1) sisip
         if i < 0 or i > self.size:
             raise IndexError("Index out of bounds")
-        new_node = Node(v)
+        nn = Node(v)
         if i == 0:
-            new_node.next = self.head
-            self.head = new_node
+            nn.next = self.head
+            self.head = nn
             if self.tail is None:
-                self.tail = new_node
+                self.tail = nn
         else:
-            current = self.head
+            cur = self.head
             for _ in range(i - 1):
-                current = current.next
-            new_node.next = current.next
-            current.next = new_node
-            if new_node.next is None:
-                self.tail = new_node
+                cur = cur.next
+            nn.next = cur.next
+            cur.next = nn
+            if nn.next is None:
+                self.tail = nn
         self.size += 1
 
     def get(self, i):
-        """Akses indeks i – O(n) telusur."""
+        # O(n) telusur
         if i < 0 or i >= self.size:
             raise IndexError("Index out of bounds")
-        current = self.head
+        cur = self.head
         for _ in range(i):
-            current = current.next
-        return current.data
+            cur = cur.next
+        return cur.data
 
     def remove(self, i):
-        """Hapus elemen pada indeks i – O(n) telusur + O(1) cabut."""
+        # O(n) telusur + O(1) cabut node
         if i < 0 or i >= self.size:
             raise IndexError("Index out of bounds")
         if i == 0:
@@ -221,13 +215,13 @@ class LinkList:
             if self.head is None:
                 self.tail = None
         else:
-            current = self.head
+            cur = self.head
             for _ in range(i - 1):
-                current = current.next
-            removed = current.next.data
-            current.next = current.next.next
-            if current.next is None:
-                self.tail = current
+                cur = cur.next
+            removed = cur.next.data
+            cur.next = cur.next.next
+            if cur.next is None:
+                self.tail = cur
         self.size -= 1
         return removed
 
@@ -235,28 +229,22 @@ class LinkList:
         return self.size
 
     def __iter__(self):
-        current = self.head
-        while current is not None:
-            yield current.data
-            current = current.next
+        cur = self.head
+        while cur is not None:
+            yield cur.data
+            cur = cur.next
 
-    
     def tambah_reguler(self, v):
-        """Pesanan biasa → masuk di ujung belakang – O(1)."""
         self.append(v)
 
     def tambah_prioritas(self, v):
-        """Pesanan prioritas → masuk di tengah antrean – O(n) telusur."""
         self.insert(self.size // 2, v)
 
     def tambah_vip(self, v):
-        """Pesanan VIP → masuk di urutan pertama – O(1)."""
         self.insert(0, v)
 
     def hapus_pesanan(self, i):
-        """Hapus pesanan pada indeks ke-i – O(n)."""
         return self.remove(i)
 
     def lihat_pesanan(self, i):
-        """Lihat pesanan pada indeks ke-i – O(n)."""
         return self.get(i)
