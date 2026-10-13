@@ -15,7 +15,14 @@ from frontend.ui import AppUI
 def main():
     root = tk.Tk()
     app = AppUI(root)
-    root.mainloop()
+    try:
+        root.mainloop()
+    except KeyboardInterrupt:
+        # keluar bersih jika ditekan Ctrl+C di terminal
+        try:
+            root.destroy()
+        except Exception:
+            pass
 
 
 if __name__ == "__main__":
