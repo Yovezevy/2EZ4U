@@ -106,7 +106,7 @@ class AppUI:
         tengah.pack(fill="both", expand=True)
 
         # 3a. Panel Kiri (Menu Navigasi)
-        self.panel_menu = tk.Frame(tengah, bg="#ffffff", width=260,
+        self.panel_menu = tk.Frame(tengah, bg="#ffffff", width=275,
                                    highlightbackground="#d1d5db", highlightthickness=1)
         self.panel_menu.pack(side="left", fill="y", padx=(0, 1))
         self.panel_menu.pack_propagate(False)
@@ -149,17 +149,27 @@ class AppUI:
         self.txt_cmd.see("end")
 
     def _bangun_menu_kiri(self):
-        # scroll canvas buat menu kiri jika layarnya kecil
-        canvas = tk.Canvas(self.panel_menu, bg="#ffffff", highlightthickness=0)
-        scroll = tk.Scrollbar(self.panel_menu, orient="vertical", command=canvas.yview)
-        isi_menu = tk.Frame(canvas, bg="#ffffff")
-
-        isi_menu.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
-        canvas.create_window((0, 0), window=isi_menu, anchor="nw", width=250)
-        canvas.configure(yscrollcommand=scroll.set)
-
-        canvas.pack(side="left", fill="both", expand=True)
+        # scrollbar di kanan dan canvas di kiri
+        scroll = tk.Scrollbar(self.panel_menu, orient="vertical")
         scroll.pack(side="right", fill="y")
+
+        canvas = tk.Canvas(self.panel_menu, bg="#ffffff", highlightthickness=0,
+                           yscrollcommand=scroll.set)
+        canvas.pack(side="left", fill="both", expand=True)
+        scroll.config(command=canvas.yview)
+
+        isi_menu = tk.Frame(canvas, bg="#ffffff")
+        window_id = canvas.create_window((0, 0), window=isi_menu, anchor="nw", width=255)
+
+        def _on_cfg(e):
+            canvas.configure(scrollregion=canvas.bbox("all"))
+
+        isi_menu.bind("<Configure>", _on_cfg)
+
+        def _on_wheel(e):
+            canvas.yview_scroll(int(-1 * (e.delta / 120)), "units")
+
+        canvas.bind_all("<MouseWheel>", _on_wheel)
 
         # Seksi DATA
         self._tambah_label_grup(isi_menu, "DATA")
@@ -213,14 +223,14 @@ class AppUI:
     def _tambah_label_grup(self, parent, judul):
         lbl = tk.Label(parent, text=judul, font=("Segoe UI", 8, "bold"),
                        bg="#ffffff", fg="#6b7280", anchor="w")
-        lbl.pack(fill="x", padx=10, pady=(10, 2))
+        lbl.pack(fill="x", padx=10, pady=(6, 1))
 
     def _tambah_tombol_nav(self, parent, teks, kode):
         btn = tk.Button(parent, text=teks,
                         command=lambda k=kode: self._pilih_menu(k),
                         font=("Segoe UI", 8), bg="#ffffff", fg="#374151",
                         activebackground="#e0f2fe", activeforeground="#0369a1",
-                        relief="flat", anchor="w", padx=10, pady=4)
+                        relief="flat", anchor="w", padx=10, pady=2)
         btn.pack(fill="x", padx=6, pady=1)
 
     def _bangun_area_hasil(self):
