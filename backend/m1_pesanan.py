@@ -1,6 +1,5 @@
 # m1_pesanan.py
-# modul buat nyimpen data pesanan pake Array sama LinkedList
-# ga boleh pake dict, set, list.insert, dll (sesuai aturan tugas)
+# array + linked list buat nyimpen pesanan
 
 class Pesanan:
     __slots__ = ("oid", "pelanggan", "resto", "menu",
@@ -23,8 +22,7 @@ class Pesanan:
                 f"{self.menu}, {self.harga}, P{self.prioritas}, {self.status})")
 
 
-# --- parser csv manual (ga pake import csv) ---
-
+# parser csv manual (ga boleh import csv)
 def _parse_csv_line(line):
     fields = []
     current = []
@@ -47,7 +45,7 @@ def _parse_csv_line(line):
 def load_pesanan(filepath):
     hasil = []
     with open(filepath, 'r', encoding='utf-8') as f:
-        f.readline()  # skip header
+        f.readline()
         for line in f:
             line = line.strip()
             if not line:
@@ -63,7 +61,7 @@ def load_pesanan(filepath):
 
 
 # === Array Dinamis ===
-# pake strategi doubling kalo udah penuh
+# pake doubling strategy kalo penuh
 
 class Array:
     def __init__(self, capacity=4):
@@ -86,7 +84,7 @@ class Array:
         self.size += 1
 
     def insert(self, i, v):
-        # O(n) karena harus geser elemen ke kanan
+        # O(n) geser ke kanan
         if i < 0 or i > self.size:
             raise IndexError("Index out of bounds")
         if self.size == self.capacity:
@@ -108,7 +106,7 @@ class Array:
         self.data[i] = v
 
     def remove(self, i):
-        # O(n) karena harus geser elemen ke kiri
+        # O(n) geser ke kiri
         if i < 0 or i >= self.size:
             raise IndexError("Index out of bounds")
         removed = self.data[i]
@@ -117,6 +115,15 @@ class Array:
         self.data[self.size - 1] = None
         self.size -= 1
         return removed
+
+    def pop_back(self):
+        # hapus elemen terakhir O(1)
+        if self.size == 0:
+            raise IndexError("Array kosong")
+        self.size -= 1
+        val = self.data[self.size]
+        self.data[self.size] = None
+        return val
 
     def swap(self, i, j):
         tmp = self.data[i]
@@ -130,17 +137,14 @@ class Array:
         for i in range(self.size):
             yield self.data[i]
 
-    # method khusus pesanan
+    # method pesanan
     def tambah_reguler(self, v):
-        # masuk belakang, O(1) amortized
         self.append(v)
 
     def tambah_prioritas(self, v):
-        # masuk tengah, O(n) geser
         self.insert(self.size // 2, v)
 
     def tambah_vip(self, v):
-        # masuk paling depan, O(n) geser semua
         self.insert(0, v)
 
     def hapus_pesanan(self, i):
@@ -166,7 +170,6 @@ class LinkList:
         self.size = 0
 
     def append(self, v):
-        # O(1) karena ada pointer tail
         nn = Node(v)
         if self.head is None:
             self.head = nn
@@ -177,7 +180,6 @@ class LinkList:
         self.size += 1
 
     def insert(self, i, v):
-        # O(n) telusur + O(1) sisip
         if i < 0 or i > self.size:
             raise IndexError("Index out of bounds")
         nn = Node(v)
@@ -197,7 +199,6 @@ class LinkList:
         self.size += 1
 
     def get(self, i):
-        # O(n) telusur
         if i < 0 or i >= self.size:
             raise IndexError("Index out of bounds")
         cur = self.head
@@ -206,7 +207,6 @@ class LinkList:
         return cur.data
 
     def remove(self, i):
-        # O(n) telusur + O(1) cabut node
         if i < 0 or i >= self.size:
             raise IndexError("Index out of bounds")
         if i == 0:
