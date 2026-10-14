@@ -158,7 +158,7 @@ class AntreanNaif:
         if self.is_empty():
             raise IndexError("Queue kosong")
         val = self.data.get(0)
-        # geser semua elemen ke kiri
+        # geser semua elemen ke kiri, ini yang bikin lambat
         geser = self.data.size - 1
         self.data.remove(0)
         self.total_geser += geser
