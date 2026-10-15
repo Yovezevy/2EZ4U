@@ -1,5 +1,3 @@
-# m1_pesanan.py
-# array + linked list buat nyimpen pesanan
 
 class Pesanan:
     __slots__ = ("oid", "pelanggan", "resto", "menu",
